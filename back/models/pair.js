@@ -1,9 +1,4 @@
 import mongoose from 'mongoose';
-import Config from '../config.js';
-
-const {mainDb} = Config();
-const db = mongoose.createConnection(mainDb);
-const Pair = db.useDb('TIDE-BSC');
 
 
 const pairSchema = new mongoose.Schema({
@@ -50,4 +45,4 @@ const pairSchema = new mongoose.Schema({
     },
 },{collection: 'pairs', timestamps: true});
 
-export default Pair.model('Pair', pairSchema);
+export default mongoose.model('Pair', pairSchema);

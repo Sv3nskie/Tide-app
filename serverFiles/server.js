@@ -14,11 +14,8 @@ import Market from './models/local/market.js';
 import mongoose from 'mongoose';
 import Config from './config.js'
 
-
-
-
 // helpers
-const corsAccept = ["192.168.1.4:3000", "192.168.1.4", "tide.sv3n.pro", "188.166.209.227", "*"];
+const corsAccept = ["192.168.1.4:3000", "192.168.1.4", "188.166.209.227","*"];
 const tokens = tokenInfo();
 const {mainDb} = Config();
 
@@ -55,12 +52,16 @@ app.use('/api', api);
 
 // Socket
 io.on('connection', (socket)=>{
+    console.log('SocketConnected')
     let pairID;
     socket.on('pair', (data)=>{
+        console.log('Socket pair connected')
         pairID = data.pairAddress;
         const changeStream = tx.watch();
         changeStream.on("change", change => {
+            console.log('Any change socket')
             if(change.fullDocument.pairAddress === pairID){
+                console.log('send change to front')
                 socket.emit('change', change.fullDocument);
             };
         });

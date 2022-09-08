@@ -74,6 +74,7 @@ class Token extends React.Component{
         this.handleTokenMenu = this.handleTokenMenu.bind(this);
         this.handleSwapAmount = this.handleSwapAmount.bind(this);
         this.swapTokenMenu = this.swapTokenMenu.bind(this);
+        this.slippageBox = this.slippageBox.bind(this);
     };
 
     handleSocket(){
@@ -186,6 +187,8 @@ class Token extends React.Component{
         });
     };
 
+
+
     handleInput(e){
         this.setState({
             input: e.target.value.toLowerCase(),
@@ -250,6 +253,36 @@ class Token extends React.Component{
             swapType: num
         });
     };
+
+    slippageBox(){
+        return(
+          <div className="slippage-box">
+            
+            <div className="slippage-box-inner">
+                <div className="slippage-bog-head">
+                    Settings 
+                    <button onClick={()=> this.props.setSlippage(false)} className="close-wallet-box">
+                        <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" font-size="20" class="Modal-close-icon" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path fill="none" d="M0 0h24v24H0z"></path><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+                    </button>
+                </div>
+                <div className="slippage-bog-content">
+                    <label>Allowed Slippage</label>
+                    <input className="slippage-input" type="number" value="0.3" />
+                    <span className="percentage">%</span>
+                    <label>
+                        <input type="checkbox" />Display PnL after fees
+                    </label>
+                    
+                    <label>
+                        <input type="checkbox" />Include PnL in leverage display
+                    </label>
+                </div>
+                <button className="slippage-box-button">Save</button>
+            </div>
+                
+          </div>
+        )
+      }
 
     TradeSection(){
         const {pairName, trades} = this.state;
@@ -330,7 +363,8 @@ class Token extends React.Component{
     };
 
     render(){
-        const {tokens, high, low, marketcap, pairName, isLoaded, change, close, changeLoaded, swapOption, swapType, swapBase, swapQuote, tokenMenu} = this.state; 
+        const {tokens, high, low, marketcap, pairName, isLoaded, change, close, changeLoaded, swapOption, swapType, swapBase, swapQuote, tokenMenu} = this.state;
+
         return (
             <>
                 <Helmet>
@@ -339,6 +373,9 @@ class Token extends React.Component{
                 </Helmet>
                 {tokenMenu &&
                     this.swapTokenMenu()
+                }
+                {this.props.slippageMenu &&
+                    this.slippageBox()
                 }
                 <div className="content flex flex-mobile">
                     <div className="left">
@@ -357,11 +394,15 @@ class Token extends React.Component{
                                         <li key="search-item">
                                             <input onChange={(e)=>{this.handleInput(e)}} placeholder='Name, Symbol, Address' className='header-input' type="text"></input>
                                         </li>
-                                        <li className="list-head">
+                                        <li key="first" className="list-head">
                                             <table>
-                                                <td>Symbols</td>
-                                                <td>Last Price</td>
-                                                <td>24h</td>
+                                                <thead>
+                                                    <tr>
+                                                        <td>Symbols</td>
+                                                        <td>Last Price</td>
+                                                        <td>24h</td>
+                                                    </tr>
+                                                </thead>
                                             </table>
                                         </li>
                                         {Object.keys(tokens).map((i)=>{
@@ -369,13 +410,15 @@ class Token extends React.Component{
                                                 <>
                                                     {i < 5 && 
                                                         <>
-                                                            <li className="list-button" onClick={()=>{this.handleToken(tokens[i].pair[0].address, tokens[i].address, tokens[i].pair[0].name)}} key={tokens[i].pair[0].name+i}>
+                                                            <li key={i.toString()} className="list-button" onClick={()=>{this.handleToken(tokens[i].pair[0].address, tokens[i].address, tokens[i].pair[0].name)}} >
                                                                 <table>
-                                                                    <tr>
-                                                                        <td>{tokens[i].pair[0].name}</td>
-                                                                        <td>{this.extraListInfo(tokens[i].pair[0].address).price}</td>
-                                                                        <td className={this.extraListInfo(tokens[i].pair[0].address).positive ? 'positive' : 'negative'}>{this.extraListInfo(tokens[i].pair[0].address).change}</td>
-                                                                    </tr>
+                                                                    <tbody>
+                                                                        <tr>
+                                                                            <td>{tokens[i].pair[0].name}</td>
+                                                                            <td>{this.extraListInfo(tokens[i].pair[0].address).price}</td>
+                                                                            <td className={this.extraListInfo(tokens[i].pair[0].address).positive ? 'positive' : 'negative'}>{this.extraListInfo(tokens[i].pair[0].address).change}</td>
+                                                                        </tr>
+                                                                    </tbody>
                                                                 </table>
                                                             </li>
                                                         </>
@@ -484,12 +527,12 @@ class Token extends React.Component{
                                 </div>
                             </div>
                             {swapType === 2 &&
-                                <div class="Exchange-swap-section Exchange-trigger-order-info">
+                                <div className="Exchange-swap-section Exchange-trigger-order-info">
                                     Take-profit and stop-loss orders can be set after opening a position. <br />
                                     <br />
                                     There will be a "Close" button on each position row, clicking this will display the option to set trigger orders. <br />
                                     <br />
-                                    For screenshots and more information, please see the <a href="#" target="_blank" rel="noopener noreferrer">docs</a>.
+                                    For screenshots and more information, please see the <a href="/" target="_blank" rel="noopener noreferrer">docs</a>.
                                 </div>
                             }
                             
@@ -545,16 +588,16 @@ class Token extends React.Component{
                                         
                                     </div>
                                     {swapType === 1 &&
-                                        <div class="Exchange-swap-section">
-                                            <div class="Exchange-swap-section-top">
-                                                <div class="muted">Price</div>
-                                                <div class="muted align-right clickable">1501.5800</div>
+                                        <div className="Exchange-swap-section">
+                                            <div className="Exchange-swap-section-top">
+                                                <div className="muted">Price</div>
+                                                <div className="muted align-right clickable">1501.5800</div>
                                             </div>
-                                            <div class="Exchange-swap-section-bottom">
-                                                <div class="Exchange-swap-input-container">
-                                                    <input type="number" min="0" placeholder="0.0" class="Exchange-swap-input small" value="" />
+                                            <div className="Exchange-swap-section-bottom">
+                                                <div className="Exchange-swap-input-container">
+                                                    <input type="number" min="0" placeholder="0.0" className="Exchange-swap-input small" value="" />
                                                 </div>
-                                                <div class="PositionEditor-token-symbol">{swapBase} {swapQuote}</div>
+                                                <div className="PositionEditor-token-symbol">{swapBase} {swapQuote}</div>
                                             </div>
                                         </div>
                                     }
@@ -601,6 +644,40 @@ class Token extends React.Component{
                             }
                             <div className="Exchange-swap-button-container"><button className="App-cta Exchange-swap-button">{swapType === 2 ? 'Open a position' : 'Connect Wallet'}</button></div>
                         </div>
+
+                        <div className="Exchange-swap-market-box App-box App-box-border">
+                            <div className="Exchange-swap-market-box-title">Swap</div>
+                            <div className="App-card-divider"></div>
+                            <div className="Exchange-info-row">
+                                <div className="Exchange-info-label">ETH Price</div>
+                                <div className="align-right">1,457.40 USD</div>
+                            </div>
+                            <div className="Exchange-info-row">
+                                <div className="Exchange-info-label">USDC Price</div>
+                                <div className="align-right">1.00 USD</div>
+                            </div>
+                            <div className="Exchange-info-row">
+                                <div className="Exchange-info-label">Available Liquidity:</div>
+                                <div className="align-right al-swap">
+                                    <span className="Tooltip"><span className="Tooltip-handle">18,717,857.53 USD</span></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="Exchange-swap-market-box App-box App-box-border">
+                            <div className="Exchange-swap-market-box-title">Useful Links</div>
+                            <div className="App-card-divider"></div>
+                            <div className="Exchange-info-row">
+                                <div className="Exchange-info-label-button"><a href="/" target="_blank" rel="noopener noreferrer">Trading guide</a></div>
+                            </div>
+                            <div className="Exchange-info-row">
+                                <div className="Exchange-info-label-button"><a href="/" target="_blank" rel="noopener noreferrer">Leaderboard</a></div>
+                            </div>
+                            <div className="Exchange-info-row">
+                                <div className="Exchange-info-label-button"><a href="/" target="_blank" rel="noopener noreferrer">Speed up page loading</a></div>
+                            </div>
+                        </div>
+
 
                         {getWindowSize().innerWidth < 761 &&
                             <>

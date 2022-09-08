@@ -1,9 +1,4 @@
 import mongoose from 'mongoose';
-import Config from '../../config.js';
-
-const {mainDb} = Config();
-const db = mongoose.createConnection(mainDb);
-const Candles = db.useDb('TIDE-BSC');
 
 
 const candlesSchema = new mongoose.Schema({
@@ -43,4 +38,4 @@ const candlesSchema = new mongoose.Schema({
     },
 },{collection: 'candles'});
 
-export default Candles.model('Candles', candlesSchema);
+export default mongoose.model('Candles', candlesSchema);

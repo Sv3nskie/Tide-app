@@ -1,9 +1,4 @@
 import mongoose from 'mongoose';
-import Config from '../config.js';
-
-const {mainDb} = Config();
-const db = mongoose.createConnection(mainDb);
-const Tokens = db.useDb('TIDE-BSC');
 
 
 const tokenSchema = new mongoose.Schema({
@@ -37,4 +32,4 @@ const tokenSchema = new mongoose.Schema({
     },
 },{collection: 'tokens', timestamps: true});
 
-export default Tokens.model('token', tokenSchema);
+export default mongoose.model('token', tokenSchema);

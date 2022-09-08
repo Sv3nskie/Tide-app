@@ -1,10 +1,4 @@
 import mongoose from 'mongoose';
-import Config from '../config.js';
-
-const {mainDb} = Config();
-const db = mongoose.createConnection(mainDb);
-const TX = db.useDb('TIDE-BSC');
-
 
 const txSchema = new mongoose.Schema({
     uniquePoint:{
@@ -96,4 +90,4 @@ const txSchema = new mongoose.Schema({
     },
 },{collection: 'tx', timestamps: true});
 
-export default TX.model('TX', txSchema);
+export default mongoose.model('TX', txSchema);

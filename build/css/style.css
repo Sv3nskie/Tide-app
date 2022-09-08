@@ -89,6 +89,43 @@ body{
     border-bottom: 1px solid var(--transparent);
 }
 
+button.mobile-menu-button {
+    background-color: var(--content);
+    outline: none;
+    border: 1px solid var(--border);
+    margin-right: 15px;
+    margin-left: 10px;
+    display: flex;
+}
+
+.mobile-menu-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    margin-top: 15px;
+    border-bottom: 1px solid var(--main);
+    padding-bottom: 10px;
+}
+
+.mobile-menu-items {
+    text-align: center;
+    padding-top: 10px;
+}
+
+.mobile-menu-items .main-menu-item {
+    border-bottom: 1px solid var(--border);
+}
+
+.menu-box {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    background-color: var(--content);
+    z-index: 99;
+    transition: .5s;
+}
+
 .menu a:hover{
     color: var(--main);
     border-bottom: 1px solid var(--main);
@@ -100,7 +137,7 @@ body{
     border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: 3px;
     color: var(--white);
-    padding: 0 10px 0px 10px;
+    padding: 0 15px 0px 15px;
     height: 35px;
     align-items: center;
     display: flex;
@@ -132,8 +169,83 @@ svg.wallet-svg {
     margin-right: 5px;
 }
 
+.slippage-bog-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--main);
+    margin-bottom: 10px;
+}
+
+input.slippage-input {
+    background-color: #ffffff00;
+    border: 1px solid var(--main);
+    border-radius: 5px;
+    padding: 10px;
+    margin-top: 5px;
+    color: var(--text);
+}
+
+span.percentage {
+    position: relative;
+    top: -30px;
+    left: 240px;
+}
+
+label {
+    display: flex;
+    align-items: center;
+}
+
+.slippage-bog-content {
+    display: grid;
+}
+
+
+button.slippage-box-button {
+    background-color: var(--main);
+    padding: 10px;
+    border-radius: 5px;
+    outline: none;
+    border: 0;
+    margin-top: 10px;
+    color: white;
+    cursor: pointer;
+}
+
+.slippage-box-inner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: grid;
+    background-color: var(--content);
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    transform: translateX(-50%) translateY(-50%);
+}
+
 .menu {
     display: flex;
+    align-items: center;
+}
+.main-menu-item {
+    padding: 15px;
+    cursor: pointer;
+}
+
+.slippage-box {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: #0000008c;
+    z-index: 30;
+    top: 0;
+    left: 0;
+}
+
+.main-menu-item:hover{
+    color: var(--main);
 }
 
 .wallet-choose {
@@ -213,7 +325,6 @@ input.header-input {
     color: var(--text);
 }
 
-
 ::-webkit-input-placeholder { /* Edge */
     color: var(--text);
     padding-left: 10px;
@@ -244,6 +355,7 @@ input:focus::placeholder {
     margin-top: 10px;
     margin-left: 10px;
     align-items: center;
+    z-index: 4;
 }
 
 .time-select {
@@ -494,10 +606,12 @@ table tr:last-child td:last-child {
     z-index: 99;
     transform: translateX(-50%) translateY(-50%);
   }
+
   .lds-roller div {
     animation: lds-roller 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
     transform-origin: 40px 40px;
   }
+
   .lds-roller div:after {
     content: " ";
     display: block;
@@ -508,9 +622,11 @@ table tr:last-child td:last-child {
     background: #fff;
     margin: -4px 0 0 -4px;
   }
+
   .lds-roller div:nth-child(1) {
     animation-delay: -0.036s;
   }
+
   .lds-roller div:nth-child(1):after {
     top: 63px;
     left: 63px;
@@ -518,52 +634,66 @@ table tr:last-child td:last-child {
   .lds-roller div:nth-child(2) {
     animation-delay: -0.072s;
   }
+
   .lds-roller div:nth-child(2):after {
     top: 68px;
     left: 56px;
   }
+
   .lds-roller div:nth-child(3) {
     animation-delay: -0.108s;
   }
+
   .lds-roller div:nth-child(3):after {
     top: 71px;
     left: 48px;
   }
+
   .lds-roller div:nth-child(4) {
     animation-delay: -0.144s;
   }
+
   .lds-roller div:nth-child(4):after {
     top: 72px;
     left: 40px;
   }
+
   .lds-roller div:nth-child(5) {
     animation-delay: -0.18s;
   }
+
   .lds-roller div:nth-child(5):after {
     top: 71px;
     left: 32px;
   }
+
   .lds-roller div:nth-child(6) {
     animation-delay: -0.216s;
   }
+
   .lds-roller div:nth-child(6):after {
     top: 68px;
     left: 24px;
   }
+
   .lds-roller div:nth-child(7) {
     animation-delay: -0.252s;
   }
+
   .lds-roller div:nth-child(7):after {
     top: 63px;
     left: 17px;
   }
+
   .lds-roller div:nth-child(8) {
     animation-delay: -0.288s;
   }
+
   .lds-roller div:nth-child(8):after {
     top: 56px;
     left: 12px;
   }
+
   @keyframes lds-roller {
     0% {
       transform: rotate(0deg);
@@ -623,12 +753,65 @@ span.footer-logo-text {
     margin-left: 10px;
 }
 
+.Exchange-swap-market-box,
 .App-box-highlight{
     position: relative;
     border: 1px solid #1e2136;
     border-radius: 0.4rem;
     background: #16182e;
     font-size: 15px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.App-card-divider {
+    height: 1px;
+    background: #23263b;
+    margin: 1.05rem -1rem;
+}
+
+.wallet-menu-dropdown {
+    position: absolute;
+    display: grid;
+    top: 50px;
+    z-index: 10;
+    right: 50px;
+    background-color: var(--content);
+    width: 150px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    z-index: 7;
+}
+
+.wallet-menu-item {
+    background-color: #ffffff00;
+    color: var(--text);
+    border: 0;
+    outline: none;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    padding: 10px 5px 10px 5px;
+    cursor: pointer;
+}
+
+.wallet-menu-item:last-child{
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+.wallet-menu-item:first-child{
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+}
+
+.wallet-menu-item:hover{
+    background-color: #8b8ead59;
+    color: var(--white);
+}
+
+.wallet-menu-item svg{
+    margin-right: 10px;
 }
 
 .Exchange-swap-box-inner {
@@ -1065,7 +1248,10 @@ span.trades-menu-item.active {
 }
 
 @media screen and (min-width: 1024px){
-    
+    .hide-desktop,
+    .menu-mobile{
+        display: none;
+    }
 }
 
 @media screen and (min-width: 768px) and (max-width: 1023px){

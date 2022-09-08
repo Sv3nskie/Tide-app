@@ -46,11 +46,11 @@ export class LightweightChart extends React.PureComponent {
 
     liveCandle(){
         const {data, resolution, swap, lastCandleTime} = this.state;
-        console.log(lastCandleTime)
         const lastCandle = data[data.length - 1];
         const price = numberFormat(swap.conversionRate);
 
         if(currentBar.open === null){
+            console.log('opt1')
             currentBar.open = lastCandle.open;
             currentBar.high = lastCandle.high > price ? lastCandle.high : price;
             currentBar.low = lastCandle.low < price ? lastCandle.low : price;
@@ -64,6 +64,7 @@ export class LightweightChart extends React.PureComponent {
                 data,
             });
         } else if(swap.timestamp < lastCandleTime + resolution){
+            console.log('opt2')
             currentBar.open = lastCandle.open;
             currentBar.high = currentBar.high > price ? currentBar.high : price;
             currentBar.low = currentBar.low < price ? currentBar.low : price;
@@ -78,6 +79,7 @@ export class LightweightChart extends React.PureComponent {
             });
 
         } else {
+            console.log('opt3')
             currentBar.open = price;
             currentBar.high = price;
             currentBar.low = price;
@@ -97,15 +99,15 @@ export class LightweightChart extends React.PureComponent {
     tooltip(d, e){
         return (
             <div className={this.state.isPositive ? "tooltip-value ExchangeChart-bottom-stats positive length-1" : "tooltip-value ExchangeChart-bottom-stats negative length-1"}>
-                <span className="ExchangeChart-bottom-stats-label">O:</span>
+                <span className="ExchangeChart-bottom-stats-label">O: </span>
                 <span className="ExchangeChart-bottom-stats-value">{numberFormat(d.open)}</span>
-                <span className="ExchangeChart-bottom-stats-label">H:</span>
+                <span className="ExchangeChart-bottom-stats-label">H: </span>
                 <span className="ExchangeChart-bottom-stats-value">{numberFormat(d.high)}</span>
-                <span className="ExchangeChart-bottom-stats-label">L:</span>
+                <span className="ExchangeChart-bottom-stats-label">L: </span>
                 <span className="ExchangeChart-bottom-stats-value">{numberFormat(d.low)}</span>
-                <span className="ExchangeChart-bottom-stats-label">C:</span>
+                <span className="ExchangeChart-bottom-stats-label">C: </span>
                 <span className="ExchangeChart-bottom-stats-value">{numberFormat(d.close)}</span>
-                <span className="ExchangeChart-bottom-stats-label hide-mobile">Volume:</span>
+                <span className="ExchangeChart-bottom-stats-label hide-mobile">Volume: </span>
                 <span className="ExchangeChart-bottom-stats-value hide-mobile">{numberFormat(e.volume)}</span>
             </div>
         );

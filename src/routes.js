@@ -1,8 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
+import {useState} from "react";
 
 // pages
-// import Home from './views/pages/Home';
 import Token from './views/pages/Token'
 
 // page components
@@ -11,12 +10,12 @@ import Footer from './views/partials/Footer';
 
 
 function Rout(){
+  const [slipMenu, setSlip] = useState(false);
     return (
       <BrowserRouter>
-        <Header/>
+        <Header slippageMenu={setSlip} />
         <Routes>
-          {/* <Route path="/" element={<Home/>} /> */}
-          <Route path="/" exact element={<Token/>} />
+          <Route path="/" exact element={<Token slippageMenu={slipMenu} setSlippage={setSlip}/>}  />
         </Routes>
         <Footer/>
       </BrowserRouter>

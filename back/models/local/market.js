@@ -1,9 +1,4 @@
 import mongoose from 'mongoose';
-import Config from '../../config.js';
-
-const {mainDb} = Config();
-const db = mongoose.createConnection(mainDb);
-const Market = db.useDb('TIDE-BSC');
 
 
 const marketSchema = new mongoose.Schema({
@@ -43,5 +38,5 @@ const marketSchema = new mongoose.Schema({
     }],
 },{collection: 'market'});
 
-export default Market.model('Market', marketSchema);
+export default mongoose.model('Market', marketSchema);
 

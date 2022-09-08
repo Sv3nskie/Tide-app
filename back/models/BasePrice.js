@@ -1,10 +1,5 @@
 import mongoose from 'mongoose';
-import Config from '../config.js';
 
-
-const {mainDb} = Config();
-const db = mongoose.createConnection(mainDb);
-const Price = db.useDb('TIDE-BSC');
 
 const priceSchema = new mongoose.Schema({
     price:{
@@ -17,4 +12,4 @@ const priceSchema = new mongoose.Schema({
     },
 },{collection: 'price'});
 
-export default Price.model('Price', priceSchema);
+export default mongoose.model('Price', priceSchema);
