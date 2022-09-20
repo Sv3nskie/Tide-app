@@ -6,14 +6,20 @@ import {trades, change, pairListData} from '../../api'
 import {io} from 'socket.io-client';
 import Config from '../../components/config'
 import {Helmet} from "react-helmet";
+import {calcPrice} from '../../components/utils'
+import Web3 from 'web3'; 
 
 
-const {sock} = Config();
+
+
+const {sock, rpc} = Config();
 const SOCKET = sock.local;
 const socket = io(SOCKET, {
     autoConnect: false,
     transports: ["websocket"]
 });
+
+const web3 = new Web3(rpc);
 
 
 function getWindowSize(){
@@ -51,11 +57,18 @@ class Token extends React.Component{
             list: '',
             swapOption: 2,
             swapType: 0,
-            swapBase: 'WBNB',
-            swapQuote: 'BUSD',
-            baseAmount: '',
-            quoteAmount: '',
+            fromAmount: '',
+            toAmount: '',
             tokenMenu: false,
+            bottomOption: 1,
+            fromBase: true,
+            fromAddress: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
+            toAddress: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56',
+            fromSymbol: 'BNB',
+            toSymbol: 'BUSD',
+            slider: 1.1,
+            sliderLabel: 0,
+            sliderState: 0,
         };
         this.handleSearch = this.handleSearch.bind(this);
         this.handleToken = this.handleToken.bind(this);
@@ -72,10 +85,14 @@ class Token extends React.Component{
         this.handleSwapType = this.handleSwapType.bind(this);
         this.handleSwapTokens = this.handleSwapTokens.bind(this);
         this.handleTokenMenu = this.handleTokenMenu.bind(this);
-        this.handleSwapAmount = this.handleSwapAmount.bind(this);
+        this.handleFromAmount = this.handleFromAmount.bind(this);
+        this.handleToAmount = this.handleToAmount.bind(this);
         this.swapTokenMenu = this.swapTokenMenu.bind(this);
         this.slippageBox = this.slippageBox.bind(this);
+        this.handlePriceUpdate = this.handlePriceUpdate.bind(this);
+        this.handleSlider = this.handleSlider.bind(this);
     };
+
 
     handleSocket(){
         socket.connect();
@@ -111,6 +128,7 @@ class Token extends React.Component{
         });
     };
 
+
     extraListInfo(pairAddress){
         const {list} = this.state;
         const pairInfo = list.find(({pair}) => pair === pairAddress);
@@ -123,15 +141,19 @@ class Token extends React.Component{
         return {change: change, price: numberFormat(pairInfo.close), positive: positive};
     };
 
+    
+
     componentDidMount(){
         this.getTokenListData();
         this.setToken();
         document.addEventListener("mousedown", this.handleClickOutside);
     };
 
+
     componentWillUnmount(){
         document.removeEventListener("mousedown", this.handleClickOutside);
     };
+
 
     getTokenListData(){
         pairListData().then(res=>{
@@ -141,6 +163,7 @@ class Token extends React.Component{
             });
         });
     };
+
 
     handleSearch(){
         if(this.state.input === '') return;
@@ -155,6 +178,7 @@ class Token extends React.Component{
             tokens: found,
         });
     };
+
 
     setToken(){
         change({address: this.state.pair}).then(res=>{
@@ -176,7 +200,6 @@ class Token extends React.Component{
                 close: numberFormat(close),
                 changeLoaded: true,
             });
-
         });
 
         trades({address: this.state.pair}).then(res=>{
@@ -186,7 +209,6 @@ class Token extends React.Component{
             });
         });
     };
-
 
 
     handleInput(e){
@@ -219,6 +241,7 @@ class Token extends React.Component{
             this.setToken();
         });
     };
+
 
     handleClickOutside(e){
         if(this.searchButton.current.contains(e.target)){
@@ -254,6 +277,7 @@ class Token extends React.Component{
         });
     };
 
+
     slippageBox(){
         return(
           <div className="slippage-box">
@@ -282,31 +306,91 @@ class Token extends React.Component{
                 
           </div>
         )
-      }
+    };
+    
 
     TradeSection(){
         const {pairName, trades} = this.state;
         return(
             <div className="trades">
                 <div className="trades-menu">
-                <span className="trades-menu-item active">Trades</span><span className="trades-menu-item">Positions</span><span className="trades-menu-item">Orders</span>
+                <span onClick={()=>this.setState({bottomOption:1})} className={this.state.bottomOption === 1 ? 'trades-menu-item active' : 'trades-menu-item'}>Trades</span>
+                <span onClick={()=>this.setState({bottomOption:2})} className={this.state.bottomOption === 2 ? 'trades-menu-item active' : 'trades-menu-item'}>Positions</span>
+                <span onClick={()=>this.setState({bottomOption:3})} className={this.state.bottomOption === 3 ? 'trades-menu-item active' : 'trades-menu-item'}>Orders</span>
                 </div>
                 <div className="trades-table">
-                    {Object.keys(trades).map((i)=>{
-                        return (
-                            <div key={trades[i].uniquePoint} className="box swap-item">
-                                <div className="swap-head">
-                                    <span>{timeConverter(trades[i].timestamp)} - </span><span><a href={`https://bscscan.com/tx/${trades[i].txHash}`}>{getWindowSize().innerWidth < 600 ? truncateAddress(trades[i].txHash) : trades[i].txHash}</a></span>
-                                </div>
-                                <div className="swap-body">
-                                    <span className={trades[i].type === 'Buy' ? 'positive': 'negative'}>{trades[i].type}</span> <span> - </span>
-                                    <span>{pairName.split('/')[0]}: {numberFormat(trades[i].baseAmount)}</span> <span> For </span>
-                                    <span>{pairName.split('/')[1]}: {numberFormat(trades[i].quoteAmount)}</span>
-                                    <span> Price per {pairName.split('/')[0]}: {numberFormat(trades[i].conversionRate)}</span>
-                                </div>
+                    {this.state.bottomOption === 1 &&
+                        <>
+                            {Object.keys(trades).map((i)=>{
+                                return (
+                                    <div key={trades[i].uniquePoint} className="box swap-item">
+                                        <div className="swap-head">
+                                            <span>{timeConverter(trades[i].timestamp)} - </span><span><a href={`https://bscscan.com/tx/${trades[i].txHash}`}>{getWindowSize().innerWidth < 600 ? truncateAddress(trades[i].txHash) : trades[i].txHash}</a></span>
+                                        </div>
+                                        <div className="swap-body">
+                                            <span className={trades[i].type === 'Buy' ? 'positive': 'negative'}>{trades[i].type}</span> <span> - </span>
+                                            <span>{pairName.split('/')[0]}: {numberFormat(trades[i].baseAmount)}</span> <span> For </span>
+                                            <span>{pairName.split('/')[1]}: {numberFormat(trades[i].quoteAmount)}</span>
+                                            <span> Price per {pairName.split('/')[0]}: {numberFormat(trades[i].conversionRate)}</span>
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                        </>
+                    }
+                    {this.state.bottomOption === 2 &&
+                        <div className="trades-table">
+                            <div className="box swap-item">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <td>Position</td>
+                                            <td>Net value</td>
+                                            <td>Size</td>
+                                            <td>Collateral</td>
+                                            <td>Entry Price</td>
+                                            <td>Liq. Price</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
-                        )
-                    })}
+                        </div>
+                    }
+
+                    {this.state.bottomOption === 3 &&
+                        <div className="trades-table">
+                            <div className="box swap-item">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <td>Type</td>
+                                            <td>Order</td>
+                                            <td>Price</td>
+                                            <td>Mark Price</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
         );
@@ -332,38 +416,58 @@ class Token extends React.Component{
     };
 
     handleSwapTokens(base, token){
-        if(base){
-            this.setState({
-                swapBase: token
-            });
-        } else {
-            this.setState({
-                swapQuote: token
-            });
-        };
+        
     };
 
-    handleTokenMenu(base){
+    handleTokenMenu(from){
         this.setState({
             tokenMenu: this.state.tokenMenu ? false : true
         });
     };
 
-    handleSwapAmount(e, base){
-        if(base){
-            this.setState({
-                baseAmount: e.target.value,
-            });
-        } else {
-            this.setState({
-                quoteAmount: e.target.value,
-            });
-        }
-        console.log(base, e);
-    };
+
+    handlePriceUpdate(amount, callback){
+        const {fromAddress, toAddress} = this.state;
+        calcPrice(fromAddress, toAddress, amount, (data)=>{
+            callback(data);
+        })
+    }
+
+    handleFromAmount(e){
+        this.setState({
+            fromAmount: e.target.value
+        }, ()=>{
+            this.handlePriceUpdate(this.state.fromAmount, (data)=>{
+                this.setState({
+                    toAmount: data
+                })
+            })
+        });
+    }
+
+    handleToAmount(e){
+        this.setState({
+            toAmount: e.target.value
+        }, ()=>{
+            this.handlePriceUpdate(this.state.toAmount, (data)=>{
+                this.setState({
+                    fromAmount: data
+                })
+            })
+        });
+    }
+
+    handleSlider(e){
+        console.log(e.target.value)
+        this.setState({
+            slider: e.target.value,
+            sliderLabel: (e.target.value / 30) * 350
+        })
+    }
 
     render(){
-        const {tokens, high, low, marketcap, pairName, isLoaded, change, close, changeLoaded, swapOption, swapType, swapBase, swapQuote, tokenMenu} = this.state;
+        const {tokens, high, low, marketcap, pairName, isLoaded, change, close, changeLoaded, swapOption, swapType, fromSymbol, toSymbol, tokenMenu, fromAmount, toAmount} = this.state;
+        
 
         return (
             <>
@@ -494,14 +598,13 @@ class Token extends React.Component{
                         </div>
                             {getWindowSize().innerWidth > 760 &&
                                 <>
-                                <this.TradeSection/>
+                                    <this.TradeSection/>
                                 </>
                             }
                     </div>
                     <div className="right">
                         <div className="Exchange-swap-box-inner App-box-highlight">
                             <div>
-
                                 <div className="Tab block Exchange-swap-option-tabs">
                                     <div onClick={()=>{this.handleSwapOptions(0)}} className={swapOption === 0 ? "Tab-option active" : "Tab-option muted"}>
                                         <svg xmlns="http://www.w3.org/2000/svg" height="9.856" viewBox="0 0 15.704 9.856" width="15.704"><path d="m529-488.59v5.67l-2.113-2.109-5.326 5.319-2.924-2.921-3.9 3.9-1.444-1.448 5.341-5.341 2.924 2.924 3.882-3.882-2.113-2.109z" fill="#fff" transform="translate(-513.3 488.59)"/></svg>
@@ -535,19 +638,19 @@ class Token extends React.Component{
                                     For screenshots and more information, please see the <a href="/" target="_blank" rel="noopener noreferrer">docs</a>.
                                 </div>
                             }
-                            
+
                             {swapType !== 2 &&
                                 <>
                                     <div className="Exchange-swap-section">
                                         <div className="Exchange-swap-section-top"><div className="muted">Pay</div></div>
                                         <div className="Exchange-swap-section-bottom">
                                             <div className="Exchange-swap-input-container">
-                                                <input onChange={()=>{this.handleSwapAmount(true)}} value={this.state.baseAmount} type="number" min="0" placeholder="0.0" className="Exchange-swap-input" />
+                                                <input onChange={(e)=>{this.handleFromAmount(e)}} value={this.state.fromBase === true ? fromAmount : toAmount} type="number" min="0" placeholder="0.0" className="Exchange-swap-input" />
                                             </div>
                                             <div>
                                                 <div className="TokenSelector">
                                                     <div  onClick={(e)=>{this.handleTokenMenu(e, true)}} className="TokenSelector-box">
-                                                        {swapBase}
+                                                        {this.state.fromBase ? fromSymbol : toSymbol}
                                                         <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 24 24" className="TokenSelector-caret" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
                                                             <path d="M16.293 9.293 12 13.586 7.707 9.293l-1.414 1.414L12 16.414l5.707-5.707z"></path>
                                                         </svg>
@@ -556,28 +659,29 @@ class Token extends React.Component{
                                             </div>
                                         </div>
                                     </div>
-                                
-                                    <div className="Exchange-swap-ball-container">
+
+                                    <div onClick={()=>this.setState({fromBase: this.state.fromBase === true ? false : true})} className="Exchange-swap-ball-container">
                                         <div className="Exchange-swap-ball">
                                             <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 512 512" className="Exchange-swap-ball-icon" height="2em" width="2em" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M131.3 231.1L32 330.6l99.3 99.4v-74.6h174.5v-49.7H131.3v-74.6zM480 181.4L380.7 82v74.6H206.2v49.7h174.5v74.6l99.3-99.5z"></path>
                                             </svg>
                                         </div>
                                     </div>
+
                                     <div className="Exchange-swap-section">
                                         <div className="Exchange-swap-section-top">
                                             <div className="muted">{swapOption === 0 ? 'Long' : swapOption === 1 ? 'Short' : 'Receive'}</div>
-                                            <div className="muted align-right">{swapOption === 2 ? '' : 'Leverage: 9.70x'}</div>
+                                            <div className="muted align-right">{swapOption === 2 ? '' : `Leverage: ${this.state.slider}x`}</div>
                                         </div>
 
                                         <div className="Exchange-swap-section-bottom">
                                             <div>
-                                                <input onChange={(e)=>{this.handleSwapAmount(e, false)}} value={this.state.quoteAmount} type="number" min="0" placeholder="0.0" className="Exchange-swap-input" />
+                                                <input onChange={(e)=>{this.handleToAmount(e)}} value={this.state.fromBase === true ? toAmount : fromAmount} type="number" min="0" placeholder="0.0" className="Exchange-swap-input" />
                                             </div>
                                             <div>
                                                 <div className="TokenSelector">
                                                     <div onClick={()=>{this.handleTokenMenu(false)}} className="TokenSelector-box">
-                                                        {swapQuote}
+                                                        {this.state.fromBase ? toSymbol : fromSymbol}
                                                         <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 24 24" className="TokenSelector-caret" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
                                                             <path d="M16.293 9.293 12 13.586 7.707 9.293l-1.414 1.414L12 16.414l5.707-5.707z"></path>
                                                         </svg>
@@ -585,7 +689,7 @@ class Token extends React.Component{
                                                 </div>
                                             </div>
                                         </div>
-                                        
+
                                     </div>
                                     {swapType === 1 &&
                                         <div className="Exchange-swap-section">
@@ -597,7 +701,7 @@ class Token extends React.Component{
                                                 <div className="Exchange-swap-input-container">
                                                     <input type="number" min="0" placeholder="0.0" className="Exchange-swap-input small" value="" />
                                                 </div>
-                                                <div className="PositionEditor-token-symbol">{swapBase} {swapQuote}</div>
+                                                <div className="PositionEditor-token-symbol">{fromSymbol} {toSymbol}</div>
                                             </div>
                                         </div>
                                     }
@@ -613,22 +717,29 @@ class Token extends React.Component{
                                                     <span className="Checkbox-label"><span className="muted">Leverage slider</span></span>
                                                 </div>
                                             </div>
-                                            <div className="Exchange-leverage-slider App-slider positive">
-                                                <div className="slider-container .rc-slider-track">
-                                                    <input className="slider" type="range" min="18" max="56" step="1"/>
+
+                                            <div class="container">
+                                                <div class="range-slider">
+                                                    <span style={{left: this.state.sliderLabel ,display: this.state.sliderState === 0 ? 'none' : 'flex'}} id="rs-bullet" class="rs-label">{this.state.slider}</span>
+                                                    <input onMouseDown={()=>this.setState({sliderState: 1})} onMouseUp={()=>this.setState({sliderState: 0})} onChange={(e)=>this.handleSlider(e)} id="rs-range-line" class="rs-range" type="range" value={this.state.slider} min="1.1" max="30" step="0.1" />
+                                                </div>
+                                                
+                                                <div class="box-minmax">
+                                                    <span>1.1</span><span>30</span>
                                                 </div>
                                             </div>
+
                                             <div className="Exchange-info-row">
                                                 <div className="Exchange-info-label">Profits In</div>
-                                                <div className="align-right strong">WBNB</div>
+                                                <div className="align-right strong">{toSymbol}</div>
                                             </div>
                                             <div className="Exchange-info-row">
                                                 <div className="Exchange-info-label">Leverage</div>
-                                                <div className="align-right">-</div>
+                                                <div className="align-right">{this.state.slider}</div>
                                             </div>
                                             <div className="Exchange-info-row">
                                                 <div className="Exchange-info-label">Entry Price</div>
-                                                <div className="align-right">$1,999.41</div>
+                                                <div className="align-right">-</div>
                                             </div>
                                             <div className="Exchange-info-row">
                                                 <div className="Exchange-info-label">Liq. Price</div>
@@ -642,18 +753,20 @@ class Token extends React.Component{
                                     }
                                 </>
                             }
-                            <div className="Exchange-swap-button-container"><button className="App-cta Exchange-swap-button">{swapType === 2 ? 'Open a position' : 'Connect Wallet'}</button></div>
+                            <div className="Exchange-swap-button-container">
+                                <button onClick={()=> this.props.active ? console.log('Wallet connected') : this.props.setOpenModal(true)} className="App-cta Exchange-swap-button">{swapType === 2 ? 'Open a position' : (this.props.active ? 'Swap' : 'Connect Wallet')}</button>
+                            </div>
                         </div>
 
                         <div className="Exchange-swap-market-box App-box App-box-border">
                             <div className="Exchange-swap-market-box-title">Swap</div>
                             <div className="App-card-divider"></div>
                             <div className="Exchange-info-row">
-                                <div className="Exchange-info-label">ETH Price</div>
+                                <div className="Exchange-info-label">{fromSymbol} Price</div>
                                 <div className="align-right">1,457.40 USD</div>
                             </div>
                             <div className="Exchange-info-row">
-                                <div className="Exchange-info-label">USDC Price</div>
+                                <div className="Exchange-info-label">{toSymbol} Price</div>
                                 <div className="align-right">1.00 USD</div>
                             </div>
                             <div className="Exchange-info-row">

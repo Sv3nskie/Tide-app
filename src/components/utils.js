@@ -1,3 +1,9 @@
+
+import Config from "./config.js";
+
+const {baseUrl} = Config();
+console.log(Config())
+
 export function truncateAddress(address){
     if (!address) return "No Account";
     const match = address.match(
@@ -31,16 +37,17 @@ export function numberFormat(num){
 
   if(parseInt(numInt) < 1){
       if(numFloat.startsWith('0000000')){
-          // 0.000000027
           return parseFloat(num).toFixed(9);
       } else {
-          // 0.1483746
-          // 0.0001927
           return parseFloat(num).toFixed(7);
       };
   } else if(parseInt(numInt) >= 1){
-      // 74,666,956.062,465
-      // 290,120,656.4,810,759
       return parseFloat(num).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   };
+};
+
+export async function calcPrice(from, to, amount, callback){
+  fetch(`${baseUrl.local}/rpc/price?from=${from}&to=${to}&amount=${amount}`).then(res=>res.json()).then(res=>{
+    callback(res.price);
+  })
 };

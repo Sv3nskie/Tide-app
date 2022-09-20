@@ -290,7 +290,7 @@ export function listInfo(req, res){
  */
 export function changeFor(req, res){
     const {address} = req.query;
-    Change.findOne({address: address}).lean().then(list=>{
+    Change.findOne({pair: address}).lean().then(list=>{
         res.status(200).json(list);
     });
 };

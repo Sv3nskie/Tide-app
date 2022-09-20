@@ -50,7 +50,6 @@ export class LightweightChart extends React.PureComponent {
         const price = numberFormat(swap.conversionRate);
 
         if(currentBar.open === null){
-            console.log('opt1')
             currentBar.open = lastCandle.open;
             currentBar.high = lastCandle.high > price ? lastCandle.high : price;
             currentBar.low = lastCandle.low < price ? lastCandle.low : price;
@@ -64,7 +63,6 @@ export class LightweightChart extends React.PureComponent {
                 data,
             });
         } else if(swap.timestamp < lastCandleTime + resolution){
-            console.log('opt2')
             currentBar.open = lastCandle.open;
             currentBar.high = currentBar.high > price ? currentBar.high : price;
             currentBar.low = currentBar.low < price ? currentBar.low : price;
@@ -79,7 +77,6 @@ export class LightweightChart extends React.PureComponent {
             });
 
         } else {
-            console.log('opt3')
             currentBar.open = price;
             currentBar.high = price;
             currentBar.low = price;
@@ -310,7 +307,6 @@ export class LightweightChart extends React.PureComponent {
                             {this.tooltip(tooltip, volume)}
                         </>
                     }
-                    
                 </div>
                 <div id={ this.props.containerId } className={ 'LightweightChart' } />
             </div>

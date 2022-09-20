@@ -5,7 +5,7 @@ import { useWeb3React } from "@web3-react/core";
 import { connectors } from "./connectors";
 import { truncateAddress } from "./utils";
 
-export default function Wallet({slippageMenu}){
+export default function Wallet({slippageMenu, activeState, isOpenModal, setOpenModal}){
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [menuOpen, setMenu] = useState(false);
   const walletMenu = useRef(null);
@@ -20,6 +20,22 @@ export default function Wallet({slippageMenu}){
     deactivate,
     active
   } = useWeb3React();
+
+  useEffect(()=>{
+    if(active){
+      activeState(true)
+      setOpenModal(false)
+    } else {
+      activeState(false)
+    }
+  },[active, activeState, setOpenModal]);
+
+  useEffect(()=>{
+    if(isOpenModal){
+      onOpen()
+    }
+  },[isOpenModal, onOpen]);
+
 
   const refreshState = useCallback(()=>{
     window.localStorage.setItem("provider", undefined);
@@ -54,7 +70,9 @@ export default function Wallet({slippageMenu}){
 
   useEffect(()=>{
     const provider = window.localStorage.getItem("provider");
-    if(provider) activate(connectors[provider]);
+    if(provider) {
+      activate(connectors[provider])
+    };
     // eslint-disable-next-line
   },[]);
 
@@ -67,11 +85,8 @@ export default function Wallet({slippageMenu}){
     };
   },[handleMenu]);
 
-
-
   return (
     <>
-      
       {!active ? (
         <button className="wallet-button" onClick={onOpen}>
           <svg className="wallet-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path fill="rgba(255,255,255,0)" d="M0 0h24v24H0z"/><path data-name="Label" d="M18.162 7.464H7.446a.8.8 0 0 0-.8.8.8.8 0 0 0 .8.8h10.716a.8.8 0 0 1 .8.8v6.976a.8.8 0 0 1-.8.8H6.375a1.341 1.341 0 0 1-1.34-1.336V7.196a1.341 1.341 0 0 1 1.34-1.34h12.322a.8.8 0 0 0 .8-.8.8.8 0 0 0-.8-.8H6.375a2.95 2.95 0 0 0-2.947 2.94v9.108a2.95 2.95 0 0 0 2.947 2.946h11.787a2.414 2.414 0 0 0 2.411-2.411V9.875a2.414 2.414 0 0 0-2.411-2.411Zm-.8 5.893a1.072 1.072 0 0 0-1.072-1.072 1.072 1.072 0 0 0-1.072 1.072 1.072 1.072 0 0 0 1.068 1.067 1.072 1.072 0 0 0 1.072-1.067Z" fill="#8b8ead"/></svg>
@@ -129,7 +144,7 @@ export default function Wallet({slippageMenu}){
           
         </>
       )}
-      <SelectWalletModal isOpen={isOpen} closeModal={onClose} />
+      <SelectWalletModal isOpen={isOpen} closeModal={onClose} setOpenModal={setOpenModal}/>
     </>
   );
 };

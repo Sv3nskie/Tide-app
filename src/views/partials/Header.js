@@ -16,7 +16,8 @@ class Header extends React.Component{
         super(props);
         this.state = {
             network: false,
-            mobileClick: false
+            mobileClick: false,
+            Ramp:false
         };
         this.handleClickOutside = this.handleClickOutside.bind(this);
         this.menuButton = React.createRef();
@@ -45,14 +46,13 @@ class Header extends React.Component{
 
     handleMobileMenu(){
         this.setState({
-            mobileClick: this.state.mobileClick ? false : true
-        })
-    }
+            mobileClick: this.state.mobileClick ? false : true,
+        });
+    };
 
     render(){
         return(
             <>
-                
                 <div className="menu-box hide-desktop" style={ this.state.mobileClick ? {left: '0'} : {left: '-100%'}}>
                     <div className="mobile-menu-head">
                         <button onClick={()=>this.handleMobileMenu()} className="mobile-menu-button">
@@ -80,6 +80,18 @@ class Header extends React.Component{
                         </div>
                         <div className="main-menu-item">Home</div>
                         <div className="main-menu-item">Contact</div>
+                        <button className="ramp-button tooltip">
+                            <svg height={20} xmlns="http://www.w3.org/2000/svg" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 512 512" style={{enableBackground: 'new 0 0 512 512'}}>
+                                <g><path d="M500.364,256c-6.982,0-11.636,4.655-11.636,11.636v139.636c0,5.818-2.327,11.636-6.982,16.291s-10.473,6.982-16.291,6.982    H46.545c-12.8,0-23.273-10.473-23.273-23.273V162.909h430.545c6.982,0,11.636-4.655,11.636-11.636    c0-6.982-4.655-11.636-11.636-11.636H11.636C4.655,139.636,0,144.291,0,151.273v256c0,25.6,20.945,46.545,46.545,46.545h418.909    c12.8,0,24.436-4.655,32.582-13.964c9.309-9.309,13.964-20.945,13.964-32.582V267.636C512,260.655,507.345,256,500.364,256z"/></g>
+                                <g><path d="M139.636,360.727H58.182c-6.982,0-11.636,4.655-11.636,11.636S51.2,384,58.182,384h81.455    c6.982,0,11.636-4.655,11.636-11.636S146.618,360.727,139.636,360.727z" /></g>
+                                <g><path d="M232.727,360.727h-46.545c-6.982,0-11.636,4.655-11.636,11.636S179.2,384,186.182,384h46.545    c6.982,0,11.636-4.655,11.636-11.636S239.709,360.727,232.727,360.727z" /></g>
+                                <g><path d="M453.818,360.727h-46.545c-6.982,0-11.636,4.655-11.636,11.636S400.291,384,407.273,384h46.545    c6.982,0,11.636-4.655,11.636-11.636S460.8,360.727,453.818,360.727z" /></g>
+                                <g><path d="M465.455,58.182H46.545C20.945,58.182,0,79.127,0,104.727c0,6.982,4.655,11.636,11.636,11.636s11.636-4.655,11.636-11.636    c0-12.8,10.473-23.273,23.273-23.273h418.909c12.8,0,23.273,10.473,23.273,23.273v104.727H58.182    c-6.982,0-11.636,4.655-11.636,11.636c0,6.982,4.655,11.636,11.636,11.636h442.182c6.982,0,11.636-4.655,11.636-11.636V104.727    C512,79.127,491.055,58.182,465.455,58.182z" /></g>
+                            </svg>
+                            On-Off Ramp
+                            <span class="tooltiptext">No KYC</span>
+                        </button>
+                        
                     </div>
 
                     <div className="menu-mobile">
@@ -125,7 +137,7 @@ class Header extends React.Component{
                         </div>
                         <StrictMode>
                             <Web3ReactProvider getLibrary={getLibrary}>
-                                <WalletConnect slippageMenu={this.props.slippageMenu}/>
+                                <WalletConnect activeState={this.props.activeState} slippageMenu={this.props.slippageMenu} isOpenModal={this.props.isOpenModal} setOpenModal={this.props.setOpenModal}/>
                             </Web3ReactProvider>
                         </StrictMode>
                     </div>

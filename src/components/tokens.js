@@ -1,7 +1,7 @@
 const TOKENS = [
     {
       name: "Binance token",
-      symbol: "WBNB",
+      symbol: "BNB",
       decimals: 18,
       address: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
       pair:[

@@ -1,9 +1,1 @@
-<?xml version="1.0" encoding="utf-8"?>
-<svg version="1.1" id="Layer_1" 
-	xmlns="http://www.w3.org/2000/svg" 
-	xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	viewBox="0 0 183.6 148.6" style="enable-background:new 0 0 183.6 148.6;" 
-	xml:space="preserve">
-<path class="st0" d="M158.8,0c-29.8,0-55.2,17.7-67,43C80,17.7,54.5,0,24.8,0H0v148.6h24.8c36.8,0,67.3-26.8,73.2-61.9H72.7
-	c-5.5,21.3-24.8,37.1-47.9,37.1v-99c23.1,0,42.4,15.8,47.9,37.1h13H98h13c5.5-21.3,24.8-37.1,47.9-37.1v123.8h24.8V0H158.8z"/>
-</svg>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 114.15 114.15"><defs><style>.cls-1{fill:#3abab4;}</style></defs><title>logo</title><path class="cls-1" d="M73.65,52.24a7.5,7.5,0,0,1-5.31-12.8L103.7,4.09a7.5,7.5,0,0,1,10.6,10.6L79,50.05A7.49,7.49,0,0,1,73.65,52.24Z" transform="translate(-2.35 -1.89)"/><path class="cls-1" d="M9.85,116a7.51,7.51,0,0,1-5.3-12.81L39.9,67.88A7.5,7.5,0,0,1,50.51,78.49L15.16,113.84A7.48,7.48,0,0,1,9.85,116Z" transform="translate(-2.35 -1.89)"/><path class="cls-1" d="M109,116a7.44,7.44,0,0,1-5.3-2.2L68.34,78.49A7.5,7.5,0,0,1,79,67.88l35.35,35.35A7.51,7.51,0,0,1,109,116Z" transform="translate(-2.35 -1.89)"/><path class="cls-1" d="M45.21,52.24a7.51,7.51,0,0,1-5.31-2.19L4.55,14.69A7.5,7.5,0,0,1,15.16,4.09L50.51,39.44a7.5,7.5,0,0,1-5.3,12.8Z" transform="translate(-2.35 -1.89)"/></svg>
