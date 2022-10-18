@@ -1,31 +1,35 @@
 import React from 'react';
 import {LightweightChart} from '../../components/chart';
-import {tokenInfo} from '../../components/tokens';
+import {tokenInfo, tokenMenu1, tokenMenu2} from '../../components/tokens';
 import {timeConverter, numberFormat, truncateAddress} from "../../components/utils";
 import {trades, change, pairListData} from '../../api'
 import {io} from 'socket.io-client';
 import Config from '../../components/config'
 import {Helmet} from "react-helmet";
-import {calcPrice} from '../../components/utils'
-import Web3 from 'web3'; 
+import {calcPrice} from '../../api/index'
+// import Web3 from 'web3';
 
 
-
-
-const {sock, rpc} = Config();
+const {sock} = Config();
 const SOCKET = sock.local;
 const socket = io(SOCKET, {
     autoConnect: false,
     transports: ["websocket"]
 });
 
-const web3 = new Web3(rpc);
+// const web3 = new Web3(rpc);
 
 
 function getWindowSize(){
     const {innerWidth, innerHeight} = window;
     return {innerWidth, innerHeight};
 };
+
+function basePrice(){
+    calcPrice('0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c', '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', (data)=>{
+        console.log(data)
+    })
+}
 
 
 class Token extends React.Component{
@@ -59,13 +63,14 @@ class Token extends React.Component{
             swapType: 0,
             fromAmount: '',
             toAmount: '',
-            tokenMenu: false,
+            tokenMenu1: false,
+            tokenMenu2: false,
             bottomOption: 1,
             fromBase: true,
             fromAddress: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
-            toAddress: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56',
+            toAddress: '0x2170Ed0880ac9A755fd29B2688956BD959F933F8',
             fromSymbol: 'BNB',
-            toSymbol: 'BUSD',
+            toSymbol: 'ETH',
             slider: 1.1,
             sliderLabel: 0,
             sliderState: 0,
@@ -83,14 +88,16 @@ class Token extends React.Component{
         this.extraListInfo = this.extraListInfo.bind(this);
         this.handleSwapOptions = this.handleSwapOptions.bind(this);
         this.handleSwapType = this.handleSwapType.bind(this);
-        this.handleSwapTokens = this.handleSwapTokens.bind(this);
-        this.handleTokenMenu = this.handleTokenMenu.bind(this);
+        this.handleTokenMenu1 = this.handleTokenMenu1.bind(this);
+        this.handleTokenMenu2 = this.handleTokenMenu2.bind(this);
         this.handleFromAmount = this.handleFromAmount.bind(this);
         this.handleToAmount = this.handleToAmount.bind(this);
-        this.swapTokenMenu = this.swapTokenMenu.bind(this);
+        this.swapTokenMenu1 = this.swapTokenMenu1.bind(this);
+        this.swapTokenMenu2 = this.swapTokenMenu2.bind(this);
         this.slippageBox = this.slippageBox.bind(this);
         this.handlePriceUpdate = this.handlePriceUpdate.bind(this);
         this.handleSlider = this.handleSlider.bind(this);
+        this.handleSwitch = this.handleSwitch.bind(this);
     };
 
 
@@ -105,7 +112,7 @@ class Token extends React.Component{
                 const past = parseFloat(this.state.past);
                 const current = parseFloat(conversionRate);
                 const positive = current > past ? true : false;
-                const percDiff = (100 * Math.abs((past - current) / ( (past+current)/2 ))).toFixed(2);
+                const percDiff = (100 * Math.abs((past - current) / ((past+current)/2))).toFixed(2);
                 const change = positive ? `+${percDiff}%` : `-${percDiff}%`;
                 const newLow = conversionRate < this.state.low ? conversionRate : this.state.low;
                 const newHigh = conversionRate > this.state.high ? conversionRate : this.state.high;
@@ -115,7 +122,7 @@ class Token extends React.Component{
                 if(isLoaded && changeLoaded && tradesLoaded){
                     this.setState({
                         high: newHigh,
-                        low: newLow,
+                        low: numberFormat(newLow),
                         marketcap: numberFormat(mcap.toFixed(2)),
                         change: change,
                         trades: [data, ...this.state.trades],
@@ -254,11 +261,12 @@ class Token extends React.Component{
             });
         };
         this.setState({
-            tokenMenu: false
+            tokenMenu1: false,
+            tokenMenu2: false
         })
     };
 
-    chartLoaded(data){
+    chartLoaded(){
         this.setState({
             isLoaded: true,
         });
@@ -396,17 +404,16 @@ class Token extends React.Component{
         );
     };
 
-    swapTokenMenu(){
-        const {tokens} = this.state;
+    swapTokenMenu1(){
         return (
             <div className="token-menu">
-                {Object.keys(tokens).map((i)=>{
+                {Object.keys(tokenMenu1).map((i)=>{
                     return (
                         <div className="token-menu-item">
-                            <img alt={tokens[i].symbol} src={`./img/token/${tokens[i].address}.webp`}></img>
+                            <img alt={tokenMenu1[i].symbol} src={`./img/token/${tokenMenu1[i].address}.webp`}></img>
                             <div>
-                                <span>{tokens[i].symbol}</span>
-                                <span style={{fontSize: '12px', color: 'var(--text)'}}>{tokens[i].name}</span>
+                                <span>{tokenMenu1[i].symbol}</span>
+                                <span style={{fontSize: '12px', color: 'var(--text)'}}>{tokenMenu1[i].name}</span>
                             </div>
                         </div>
                     )
@@ -415,13 +422,33 @@ class Token extends React.Component{
         )
     };
 
-    handleSwapTokens(base, token){
-        
+    swapTokenMenu2(){
+        return (
+            <div className="token-menu">
+                {Object.keys(tokenMenu2).map((i)=>{
+                    return (
+                        <div className="token-menu-item">
+                            <img alt={tokenMenu2[i].symbol} src={`./img/token/${tokenMenu2[i].address}.webp`}></img>
+                            <div>   
+                                <span>{tokenMenu2[i].symbol}</span>
+                                <span style={{fontSize: '12px', color: 'var(--text)'}}>{tokenMenu2[i].name}</span>
+                            </div>
+                        </div>
+                    )
+                })}
+            </div>
+        )
     };
 
-    handleTokenMenu(from){
+    handleTokenMenu1(){
         this.setState({
-            tokenMenu: this.state.tokenMenu ? false : true
+            tokenMenu1: this.state.tokenMenu1 ? false : true
+        });
+    };
+
+    handleTokenMenu2(){
+        this.setState({
+            tokenMenu2: this.state.tokenMenu2 ? false : true
         });
     };
 
@@ -458,16 +485,27 @@ class Token extends React.Component{
     }
 
     handleSlider(e){
-        console.log(e.target.value)
         this.setState({
             slider: e.target.value,
             sliderLabel: (e.target.value / 30) * 350
         })
     }
 
+    handleSwitch(){
+        const {fromBase, fromAmount, toAmount, fromAddress, toAddress, fromSymbol, toSymbol} = this.state
+        this.setState({
+            fromBase: fromBase ? false : true,
+            fromAmount: toAmount,
+            toAmount: fromAmount,
+            fromAddress: toAddress,
+            toAddress: fromAddress,
+            fromSymbol: toSymbol,
+            toSymbol: fromSymbol,
+        })
+    }
+
     render(){
-        const {tokens, high, low, marketcap, pairName, isLoaded, change, close, changeLoaded, swapOption, swapType, fromSymbol, toSymbol, tokenMenu, fromAmount, toAmount} = this.state;
-        
+        const {tokens, high, low, marketcap, pairName, isLoaded, change, close, changeLoaded, swapOption, swapType, fromSymbol, toSymbol, tokenMenu1, tokenMenu2, fromAmount, toAmount, fromBase} = this.state;
 
         return (
             <>
@@ -475,8 +513,11 @@ class Token extends React.Component{
                     <title>{pairName} - {close}</title>
                     <meta name="description" content="Nested component" />
                 </Helmet>
-                {tokenMenu &&
-                    this.swapTokenMenu()
+                {tokenMenu1 &&
+                    this.swapTokenMenu1()
+                }
+                {tokenMenu2 &&
+                    this.swapTokenMenu2()
                 }
                 {this.props.slippageMenu &&
                     this.slippageBox()
@@ -645,12 +686,12 @@ class Token extends React.Component{
                                         <div className="Exchange-swap-section-top"><div className="muted">Pay</div></div>
                                         <div className="Exchange-swap-section-bottom">
                                             <div className="Exchange-swap-input-container">
-                                                <input onChange={(e)=>{this.handleFromAmount(e)}} value={this.state.fromBase === true ? fromAmount : toAmount} type="number" min="0" placeholder="0.0" className="Exchange-swap-input" />
+                                                <input onChange={(e)=>{this.handleFromAmount(e)}} value={fromAmount} type="number" min="0" placeholder="0.0" className="Exchange-swap-input" />
                                             </div>
                                             <div>
                                                 <div className="TokenSelector">
-                                                    <div  onClick={(e)=>{this.handleTokenMenu(e, true)}} className="TokenSelector-box">
-                                                        {this.state.fromBase ? fromSymbol : toSymbol}
+                                                    <div  onClick={(e)=>{this.handleTokenMenu1(e, true)}} className="TokenSelector-box">
+                                                        {fromSymbol}
                                                         <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 24 24" className="TokenSelector-caret" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
                                                             <path d="M16.293 9.293 12 13.586 7.707 9.293l-1.414 1.414L12 16.414l5.707-5.707z"></path>
                                                         </svg>
@@ -660,7 +701,7 @@ class Token extends React.Component{
                                         </div>
                                     </div>
 
-                                    <div onClick={()=>this.setState({fromBase: this.state.fromBase === true ? false : true})} className="Exchange-swap-ball-container">
+                                    <div onClick={()=>this.handleSwitch()} className="Exchange-swap-ball-container">
                                         <div className="Exchange-swap-ball">
                                             <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 512 512" className="Exchange-swap-ball-icon" height="2em" width="2em" xmlns="http://www.w3.org/2000/svg">
                                                 <path d="M131.3 231.1L32 330.6l99.3 99.4v-74.6h174.5v-49.7H131.3v-74.6zM480 181.4L380.7 82v74.6H206.2v49.7h174.5v74.6l99.3-99.5z"></path>
@@ -676,12 +717,12 @@ class Token extends React.Component{
 
                                         <div className="Exchange-swap-section-bottom">
                                             <div>
-                                                <input onChange={(e)=>{this.handleToAmount(e)}} value={this.state.fromBase === true ? toAmount : fromAmount} type="number" min="0" placeholder="0.0" className="Exchange-swap-input" />
+                                                <input onChange={(e)=>{this.handleToAmount(e)}} value={toAmount} type="number" min="0" placeholder="0.0" className="Exchange-swap-input" />
                                             </div>
                                             <div>
                                                 <div className="TokenSelector">
-                                                    <div onClick={()=>{this.handleTokenMenu(false)}} className="TokenSelector-box">
-                                                        {this.state.fromBase ? toSymbol : fromSymbol}
+                                                    <div onClick={()=>{this.handleTokenMenu2(false)}} className="TokenSelector-box">
+                                                        {toSymbol}
                                                         <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 24 24" className="TokenSelector-caret" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
                                                             <path d="M16.293 9.293 12 13.586 7.707 9.293l-1.414 1.414L12 16.414l5.707-5.707z"></path>
                                                         </svg>

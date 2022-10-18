@@ -2,7 +2,6 @@
 import Config from "./config.js";
 
 const {baseUrl} = Config();
-console.log(Config())
 
 export function truncateAddress(address){
     if (!address) return "No Account";
@@ -44,10 +43,4 @@ export function numberFormat(num){
   } else if(parseInt(numInt) >= 1){
       return parseFloat(num).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   };
-};
-
-export async function calcPrice(from, to, amount, callback){
-  fetch(`${baseUrl.local}/rpc/price?from=${from}&to=${to}&amount=${amount}`).then(res=>res.json()).then(res=>{
-    callback(res.price);
-  })
 };

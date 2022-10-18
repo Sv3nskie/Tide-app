@@ -63,3 +63,9 @@ export async function pairListData(){
     });
     return await res.json();
 };
+
+export async function calcPrice(from, to, amount, callback){
+    fetch(`${baseUrl.local}/rpc/price?from=${from}&to=${to}&amount=${amount}`).then(res=>res.json()).then(res=>{
+      callback(res);
+    })
+};

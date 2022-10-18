@@ -32,7 +32,7 @@ export class LightweightChart extends React.PureComponent {
             isLoaded: false,
             swap: '',
             isPositive: false,
-            windowSize: '',
+            windowSize: getWindowSize().innerWidth < 767 ? getWindowSize().innerWidth - 25 : (getWindowSize().innerWidth / 3) * 2 - 10,
             lastCandleTime: ''
         };
         this.setChart = this.setChart.bind(this);
@@ -136,15 +136,13 @@ export class LightweightChart extends React.PureComponent {
 
     handleWindowResize(){
         this.setState({
-            windowSize: getWindowSize()
+            windowSize: getWindowSize().innerWidth < 767 ? getWindowSize().innerWidth - 25 : (getWindowSize().innerWidth / 3) * 2 - 10
+        }, ()=>{
+            this.chart.applyOptions({ width: this.state.windowSize });
         });
     };
 
     componentDidMount(){
-        this.setState({
-            windowSize: getWindowSize()
-        })
-
         this.getChart();
         window.addEventListener('resize', this.handleWindowResize);
     };
@@ -197,7 +195,7 @@ export class LightweightChart extends React.PureComponent {
     setChart(){
         const {data} = this.state;
         const chart = createChart(this.props.containerId, {
-            width: getWindowSize().innerWidth < 767 ? getWindowSize().innerWidth - 25 : (getWindowSize().innerWidth / 3) * 2 - 10,
+            width: this.state.windowSize,
             height: 450,
             rightPriceScale: {
                 scaleMargins: {
